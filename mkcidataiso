@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if ! type mkisofs; then
+	if ! type xorriso; then
+		echo "Please install either xorriso or mkisofs." >&2
+		exit 1
+	fi
+
+	mkisofs() {
+		xorriso -as mkisofs "$@"
+	}
+fi
+
+set -x
+cd cloud-init
+mkisofs -o cidata.iso -V CIDATA -J -r user-data meta-data
