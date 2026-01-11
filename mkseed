@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Creates a "raw" disk file, usb.img, which will (when this project is
+# actually done and working) be an image which can be dd-ed to a USB
+# drive and used for zero-reboot installation of Ubuntu
+#
+# WARNING: This immediately deletes any existing file named 'usb.iso'
+# in the current working directory!
+
+set -ex
+
+rm usb.img && fallocate -l 20G usb.img
+
+./mkcidataiso
+
+kvm -m 8G -drive file=usb.img,format=raw,index=0,media=disk -drive file="/home/jordan/Downloads/ubuntu-25.10-desktop-amd64.iso,format=raw,index=1,media=cdrom" -drive file=./cloud-init/cidata.iso,format=raw,media=cdrom

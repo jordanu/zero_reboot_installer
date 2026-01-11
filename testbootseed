@@ -1,0 +1,7 @@
+#!/bin/bash
+# Convenience script to test the usb.img that was (presumably) just
+# created.
+
+set -ex
+
+kvm -m 8G -drive file=usb.img,format=raw,index=0,media=disk
