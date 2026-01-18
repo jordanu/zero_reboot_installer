@@ -1,5 +1,30 @@
 #cloud-config
 
+bootcmd:
+# These next 3 lines are an ugly hack to "trick" subiquity.
+# The "proper" / expected way to get subiquity to autoinstall completely
+# non-interactively is to add the kernel parameter "autoinstall".
+
+# I don't want to modify the iso file (to change the grub.cfg), and I
+# don't want to load the kernel directly via qemu (which would require
+# extracting the kernel and initramfs from the iso image ahead of time,
+# and either hard coding the standard kernel parameters or somehow
+# extracting them as well).
+
+# /proc/cmdline is a read-only file exposed by procfs and cannot be
+# modified after the kernel is loaded.
+
+# I can however create a writeable file, append ' autoinstall' to it, and
+# then bind mount it over the *path* /proc/cmdline.
+
+# Subiquity then sees 'autoinstall' when it checks, and doesn't ask for
+# user confirmation before partitioning and installing.
+
+- [ install, --mode, 644, /proc/cmdline, /cmdline_override.txt ]
+- echo ' autoinstall' >> /cmdline_override.txt
+- [ mount, --bind, /cmdline_override.txt, /proc/cmdline ]
+
+
 autoinstall:
   version: 1
   storage:
